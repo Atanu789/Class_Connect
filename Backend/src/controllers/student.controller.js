@@ -38,23 +38,26 @@ const registerStudent = asyncHandler(async (req, res) => {
     $or: [{ username }, { email }, { studentId }],
   });
   if (existedStudent) {
-    throw new ApiError(409, "Student with email, username, or ID already exists");
+    throw new ApiError(409, "Student with email,username or ID already exists");
   }
-   
-  const studentAvatarLocalPath = req.files?.studentAvatar[0]?.path;
-  console.log(studentAvatarLocalPath)
-  if (!studentAvatarLocalPath) {
-    throw new ApiError(400, "Avatar file is required");
-  }
-  const studentAvatar = await uploadOnCloudinary(studentAvatarLocalPath);
 
-  if (!studentAvatar) {
-    throw new ApiError(400, "Avatar file is required");
-  }
+  // const studentAvatarLocalPath = req.files?.avatar[0]?.path;
+
+  // if (!studentAvatarLocalPath) {
+  //   throw new ApiError(400, "Avatar file is required");
+  // }
+  // const studentAvatar = await uploadOnCloudinary(studentAvatarLocalPath);
+
+  // if (!studentAvatar) {
+  //   throw new ApiError(400, "Avatar file is required");
+  // }
+
+  
+
 
   const studentUser = await Student.create({
     fullName,
-    studentAvatar: studentAvatar.url,
+    // studentAvatar: studentAvatar.url,
     email,
     password,
     username: username,
@@ -68,13 +71,10 @@ const registerStudent = asyncHandler(async (req, res) => {
   if (!createdStudentUser) {
     throw new ApiError(400, "Error while registering Student in database");
   }
-  
-  res
+  return res
     .status(201)
-    .json(new ApiResponse(200, {studentUser, _id: studentUser._id }, "Student registered Successfully"));
+    .json(new ApiResponse(200, studentUser, "Student registered Successfully"));
 });
-
-
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
@@ -161,26 +161,4 @@ const findUser = async (req, res) => {
     res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
   }
 };
-const getAllStudents = asyncHandler(async (req, res) => {
-  const students = await Student.find();
-  res.status(200).json(new ApiResponse(200, students, "All students fetched successfully"));
-});
-
-const findStudentByUsername = asyncHandler(async (req, res) => {
-  const { userName } = req.params;
-  console.log(userName)
-  try {
-    const student = await Student.findOne({ userName });
-    console.log(student)
-    if (!student) {
-      throw new ApiError(404, "Student not found");
-    }
-    res.status(200).json(new ApiResponse(200, student, "Student found successfully"));
-  } catch (error) {
-    console.log(error);
-    res.status(error.statusCode || 500).json(new ApiResponse(error.statusCode || 500, null, error.message || "Internal Server Error"));
-  }
-});
-
-
-export { registerStudent, loginUser, logoutUser,findUser,getAllStudents,findStudentByUsername };
+export { registerStudent, loginUser, logoutUser,findUser };
