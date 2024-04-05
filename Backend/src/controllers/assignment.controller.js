@@ -4,8 +4,6 @@ import { Student } from "../models/student.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {Teacher} from "../models/teacher.model.js"
 import { Assignment } from "../models/assignment.model.js";
-import { Solution } from "../models/solution.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 const giveAssignment = asyncHandler(async(req,res)=>{
@@ -51,57 +49,25 @@ const getAssignments = asyncHandler(async (req,res)=>{
   }
 })
 
-const solutionAssignment = asyncHandler(async (req, res) => {
-  try {
-    const { assignmentId, studentId } = req.params; // Assuming assignmentId and studentId are passed in the request parameters
+// const pptLocalPath = req.files?.pptUpload[0]?.path;
+// if(!pptLocalPath){
+//   throw new ApiError(400, "ppt file is required");
+// }
+// const ppt = await uploadOnCloudinary(pptLocalPath);
 
-    const pptLocalPath = req.files?.pptUrl[0]?.path;
-    if (!pptLocalPath) {
-      throw new ApiError(400, "PPT file is required");
-    }
+//   if (!ppt) {
+//     throw new ApiError(400, "ppt file is required2");
+//   }
 
-    const pptUploadResult = await uploadOnCloudinary(pptLocalPath);
-    if (!pptUploadResult || !pptUploadResult.url) {
-      throw new ApiError(500, "Failed to upload PPT file");
-    }
-
-    const pptUrl = pptUploadResult.url;
-
-    const videoLocalPath = req.files?.videoUrl[0]?.path;
-    if (!videoLocalPath) {
-      throw new ApiError(400, "Video file is required");
-    }
-
-    const videoUploadResult = await uploadOnCloudinary(videoLocalPath);
-    if (!videoUploadResult || !videoUploadResult.url) {
-      throw new ApiError(500, "Failed to upload video file");
-    }
-
-    const videoUrl = videoUploadResult.url;
-
-    const solution = new Solution({
-      assignment: assignmentId,
-      student: studentId, // Set the studentId here
-      pptUrl: pptUrl,
-      videoUrl: videoUrl,
-    });
-
-    await solution.save();
-
-    res.status(201).json({ success: true, data: solution });
-  } catch (error) {
-    console.log(error);
-    res.status(error.status || 500).json({ success: false, error: error.message || 'Server error' });
-  }
-});
-
-
-
-
-
-
+//   const assignment = await Assignment.create({
+//     pptUploadPath: ppt.url
+//   })
+//   return res
+//     .status(201)
+//     .json(new ApiResponse(200, assignment, "ppt registered Successfully"));
+    
 export {
     giveAssignment,
     getAssignments,
-    solutionAssignment
+    // submitAssignments
 }
